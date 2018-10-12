@@ -4,7 +4,7 @@ Kimurai.configure do |config|
   # config.colorize_logger = false
 
   # Logger level for default logger:
-  # config.log_level = :info
+  config.log_level = :debug
 
   # Custom logger:
   # config.logger = Logger.new(STDOUT)
