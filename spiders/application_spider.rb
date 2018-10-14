@@ -1,20 +1,25 @@
 # ApplicationSpider is a default base spider class. You can set here
 # default settings for all spiders inherited from ApplicationSpider.
 # To generate a new spider, run: `$ kimurai generate spider spider_name`
-
+require 'net/http'
+require 'kimurai'
 class ApplicationSpider < Kimurai::Base
   include ApplicationHelper
 
   # Default engine for spiders (available engines: :mechanize, :poltergeist_phantomjs,
   # :selenium_firefox, :selenium_chrome)
-  @engine = :poltergeist_phantomjs
+  @engine = :selenium_chrome
 
   # Pipelines list, by order.
   # To process item through pipelines pass item to the `send_item` method
-  @pipelines = [:validator, :saver]
+  # @pipelines = [:validator, :saver]
 
   # Default config. Set here options which are default for all spiders inherited
   # from ApplicationSpider. Child's class config will be deep merged with this one
+  USER_AGENTS = []
+
+  # PROXIES = ["2.3.4.5:8080:http:username:password", "3.4.5.6:3128:http", "1.2.3.4:3000:socks5"]
+
   @config = {
     # Custom headers, format: hash. Example: { "some header" => "some value", "another header" => "another value" }
     # Works only for :mechanize and :poltergeist_phantomjs engines (Selenium doesn't allow to set/get headers)
@@ -24,8 +29,8 @@ class ApplicationSpider < Kimurai::Base
     # Use lambda if you want to rotate user agents before each run:
     # user_agent: -> { ARRAY_OF_USER_AGENTS.sample }
     # Works for all engines
-    # user_agent: "Mozilla/5.0 Firefox/61.0",
-
+    user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
+    # proxy: -> { PROXIES.sample },
     # Custom cookies, format: array of hashes.
     # Format for a single cookie: { name: "cookie name", value: "cookie value", domain: ".example.com" }
     # Works for all engines
@@ -43,13 +48,13 @@ class ApplicationSpider < Kimurai::Base
     # with self-signed SSL cert (for example Crawlera or Mitmproxy)
     # Also, it will allow to visit webpages with expires SSL certificate.
     # Works for all engines
-    ignore_ssl_errors: true,
+    # ignore_ssl_errors: true,
 
     # Custom window size, works for all engines
     # window_size: [1366, 768],
 
     # Skip images downloading if true, works for all engines
-    disable_images: true,
+    # disable_images: true,
 
     # Selenium engines only: headless mode, `:native` or `:virtual_display` (default is :native)
     # Although native mode has a better performance, virtual display mode
@@ -98,7 +103,16 @@ class ApplicationSpider < Kimurai::Base
     # If after 3 attempts there is still an exception, then the exception will be raised.
     # It is a good idea to try to retry errros like `ReadTimeout`, `HTTPBadGateway`, etc.
     # Format: same like for `skip_request_errors` option.
-    # retry_request_errors: [Net::ReadTimeout],
+    skip_request_errors: [{ error: RuntimeError, message: "404 => Net::HTTPNotFound" }],
+
+    # Automatically retry provided errors with a few attempts while requesting a page.
+    # If raised error matches one of the errors in the list, then this error will be caught
+    # and the request will be processed again within a delay. There are 3 attempts:
+    # first: delay 15 sec, second: delay 30 sec, third: delay 45 sec.
+    # If after 3 attempts there is still an exception, then the exception will be raised.
+    # It is a good idea to try to retry errros like `ReadTimeout`, `HTTPBadGateway`, etc.
+    # Format: same like for `skip_request_errors` option.
+    retry_request_errors: [Net::ReadTimeout],
 
     # Restart browser if one of the options is true:
     restart_if: {
@@ -131,7 +145,8 @@ class ApplicationSpider < Kimurai::Base
       # Global option to set delay between requests.
       # Delay can be `Integer`, `Float` or `Range` (`2..5`). In case of a range,
       # delay number will be chosen randomly for each request: `rand (2..5) # => 3`
-      # delay: 1..3
+      delay: 4..7
+      # before_request: { delay: 4..7 }
     }
   }
 end

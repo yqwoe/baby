@@ -11,6 +11,7 @@ gem 'require_all'
 
 # Dotenv
 gem 'dotenv'
+gem 'mongo'
 
 # To debug spiders:
 group :development do

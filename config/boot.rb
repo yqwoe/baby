@@ -1,3 +1,4 @@
+
 # require project gems
 require 'bundler/setup'
 Bundler.require(:default, Kimurai.env)
@@ -10,6 +11,7 @@ Dir.glob(File.join("./config/initializers", "*.rb"), &method(:require))
 
 # require helpers
 Dir.glob(File.join("./helpers", "*.rb"), &method(:require))
+Dir.glob(File.join("./lib", "*.rb"), &method(:require))
 
 # require pipelines
 Dir.glob(File.join("./pipelines", "*.rb"), &method(:require))
